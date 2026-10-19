@@ -4,6 +4,11 @@ on:
   schedule:
     - cron: "5 3 1 * *"
   workflow_dispatch:
+    inputs:
+      mes:
+        description: "Mes de 01 a 12 (deixe vazio para usar o mes atual)"
+        required: false
+        default: ""
 
 permissions:
   contents: write
@@ -17,8 +22,11 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Copiar o logo do mes
+        env:
+          MES_INFORMADO: ${{ github.event.inputs.mes }}
         run: |
-          MES=$(TZ=America/Sao_Paulo date +%m)
+          MES="${MES_INFORMADO:-$(TZ=America/Sao_Paulo date +%m)}"
+          MES=$(printf "%02d" "$((10#$MES))")
           ARQUIVO=$(ls logo-${MES}-*.png | head -n 1)
           echo "Mes: $MES | Arquivo: $ARQUIVO"
           cp "$ARQUIVO" logo-mhk.png
